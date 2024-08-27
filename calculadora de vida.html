@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logo.png">
+    <title>Calculadora FSAO</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #222;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Estilo para la barra de navegación */
+        nav {
+            width: 100%;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav img {
+            height: 40px;
+            width: auto;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        nav span {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        #calculadora {
+            background-color: #333;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+            margin-top: 80px; /* Ajustado para evitar que el contenido se superponga con la barra de navegación */
+            color: #fff;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            color: #ddd;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            box-sizing: border-box;
+            font-size: 1em;
+            background-color: #444;
+            color: #fff;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #resultado {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #nota {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #ddd;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <img src="logo.png" alt="Logo">
+        <span>Calculadora FSAO</span>
+    </nav>
+
+    <div id="calculadora">
+        <h1>Calculadora de vida FSAO</h1>
+        <form id="formulario">
+            <label for="raza">Raza:</label>
+            <select id="raza" required>
+                <option value="Humano">Humano</option>
+                <option value="Elfo">Elfo</option>
+                <option value="Elfo Oscuro">Elfo Oscuro</option>
+                <option value="Enano">Enano</option>
+                <option value="Gnomo">Gnomo</option>
+            </select>
+
+            <label for="clase">Clase:</label>
+            <select id="clase" required>
+                <option value="Mago">Mago</option>
+                <option value="Nigromante">Nigromante</option>
+                <option value="Bardo">Bardo</option>
+                <option value="Druida">Druida</option>
+                <option value="Paladín">Paladín</option>
+                <option value="Asesino">Asesino</option>
+                <option value="Cazador">Cazador</option>
+                <option value="Arquero">Arquero</option>
+                <option value="Guerrero">Guerrero</option>
+                <option value="Pirata">Pirata</option>
+                <option value="Clérigo">Clérigo</option>
+            </select>
+
+            <label for="nivel">Nivel:</label>
+            <input type="number" id="nivel" min="1" max="45" required>
+
+            <label for="vidaActual">Vida Actual:</label>
+            <input type="number" id="vidaActual" min="0" required>
+
+            <button type="submit">Calcular Promedio de Vida</button>
+        </form>
+
+        <div id="resultado"></div>
+    </div>
+    
+    <div id="nota">
+        <br> - Esta calculadora está realizada en base a la wiki de FSAO. <br>
+        <br>- No se tiene en cuenta la recompensa Vitalidad.<br>
+    </div>
+
+    <script>
+        const promediosPorClaseYRaza = {
+            "Mago": {"Elfo": 6.5, "Elfo Oscuro": 6.8, "Gnomo": 6, "Humano": 7, "Enano": 7.2},
+            "Nigromante": {"Elfo": 6.5, "Elfo Oscuro": 6, "Gnomo": 6, "Humano": 7, "Enano": 6.8},
+            "Bardo": {"Elfo": 8, "Elfo Oscuro": 7.5, "Gnomo": 7.5, "Humano": 8.5, "Enano": 8.3},
+            "Druida": {"Elfo": 6.5, "Elfo Oscuro": 6, "Gnomo": 6, "Humano": 7, "Enano": 6.7},
+            "Paladín": {"Elfo": 9, "Elfo Oscuro": 8.5, "Gnomo": 8.5, "Humano": 10, "Enano": 9.5},
+            "Asesino": {"Elfo": 8.0, "Elfo Oscuro": 7.5, "Gnomo": 7.5, "Humano": 8.5, "Enano": 8.2},
+            "Cazador": {"Elfo": 9, "Elfo Oscuro": 8.5, "Gnomo": 8.5, "Humano": 9.5, "Enano": 9.2},
+            "Arquero": {"Elfo": 9.5, "Elfo Oscuro": 7.3, "Gnomo": 6.7, "Humano": 10, "Enano": 10.5},
+            "Guerrero": {"Elfo": 9.0, "Elfo Oscuro": 9.3, "Gnomo": 8.7, "Humano": 10, "Enano": 10.5},
+            "Pirata": {"Elfo": 7.0, "Elfo Oscuro": 7.3, "Gnomo": 6.7, "Humano": 10, "Enano": 10.5},
+            "Clérigo": {"Elfo": 8, "Elfo Oscuro": 7.5, "Gnomo": 7.5, "Humano": 8.5, "Enano": 8.2}
+        };
+
+        function obtenerPromedioPorClaseYRaza(clase, raza) {
+            const promedios = promediosPorClaseYRaza[clase];
+            return promedios ? promedios[raza] : 0;
+        }
+
+        function calcularPromedioVida(raza, clase, nivel, vidaActual) {
+            const promedioPorClaseYRaza = obtenerPromedioPorClaseYRaza(clase, raza);
+            
+            if (promedioPorClaseYRaza === 0) {
+                return "La combinación de clase y raza no es válida.";
+            }
+            
+            const vidaPromedio = promedioPorClaseYRaza * nivel;
+            const diferencia = vidaActual - vidaPromedio;
+            const diferenciaAbsoluta = Math.abs(Math.round(diferencia));
+            
+            if (diferencia > 0) {
+                return `<span style="color: green;">El promedio de vida de tu personaje es +${diferenciaAbsoluta} por encima del promedio.</span>`;
+            } else if (diferencia < 0) {
+                return `<span style="color: red;">El promedio de vida de tu personaje es -${diferenciaAbsoluta} por debajo del promedio.</span>`;
+            } else {
+                return "La vida de tu personaje está exactamente en el promedio.";
+            }
+        }
+
+        document.getElementById('formulario').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const raza = document.getElementById('raza').value;
+            const clase = document.getElementById('clase').value;
+            const nivel = parseInt(document.getElementById('nivel').value);
+            const vidaActual = parseInt(document.getElementById('vidaActual').value);
+
+            const resultado = calcularPromedioVida(raza, clase, nivel, vidaActual);
+            document.getElementById('resultado').innerHTML = resultado;
+        });
+    </script>
+</body>
+</html>
